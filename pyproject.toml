@@ -1,0 +1,66 @@
+# Copyright 2026 vlad.apostol@canonical.com
+# See LICENSE file for licensing details.
+
+[project]
+name = "nfs-csi"
+version = "0.0.1"
+requires-python = ">=3.10"
+
+# Dependencies of the charm code
+dependencies = [
+    "ops>=3,<4",
+    "lightkube>=0.15.4",
+    "lightkube-models>=1.28.1.4",
+    "charmlibs-snap~=1.0",
+    "pydantic>=2,<3",
+    "ops-interface-kube-control~=0.3",
+]
+
+[dependency-groups]
+# Dependencies of linting and static type checks
+lint = [
+    "black",
+    "flake8",
+    "isort",
+    "codespell",
+    "pyright",
+]
+# Dependencies of unit tests
+unit = [
+    "coverage[toml]",
+    "ops[testing]",
+    "pytest",
+]
+# Dependencies of integration tests
+integration = [
+    "jubilant",
+    "pytest",
+    "PyYAML",
+]
+
+# Testing tools configuration
+[tool.coverage.run]
+branch = true
+
+[tool.coverage.report]
+show_missing = true
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+log_cli_level = "INFO"
+
+# Linting tools configuration
+[tool.black]
+line-length = 99
+target-version = ["py312"]
+extend-exclude = "__pycache__|.*\\.egg_info"
+
+[tool.isort]
+profile = "black"
+line_length = 99
+
+[tool.codespell]
+skip = "build,lib,venv,icon.svg,.tox,.git,.mypy_cache,.ruff_cache,.coverage"
+
+[tool.pyright]
+include = ["src", "tests"]

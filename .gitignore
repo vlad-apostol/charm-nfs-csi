@@ -1,0 +1,20 @@
+# Charm build artifacts
+*.charm
+/venv/
+/.venv/
+
+
+# Python
+__pycache__/
+.Python
+.pytest_cache/
+.mypy_cache/
+.tox/
+.coverage
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~

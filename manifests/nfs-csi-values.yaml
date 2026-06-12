@@ -1,0 +1,95 @@
+# Value overrides for the csi-driver-nfs chart.
+#
+# This file is optional. The chart can be rendered with its defaults, but these
+# examples cover the values most likely to need local customization.
+
+# image:
+  # Override the default registry for all sidecar images.
+  # baseRepo: registry.k8s.io
+
+  # Pin a custom NFS driver image or tag.
+  # nfs:
+  #   repository: registry.k8s.io/sig-storage/nfsplugin
+  #   tag: v4.13.2
+  #   pullPolicy: IfNotPresent
+
+driver:
+  # Keep the default CSI driver name unless you need to interoperate with an
+  # existing deployment using a non-default name.
+  name: nfs.csi.k8s.io
+  mountPermissions: 0
+
+feature:
+  enableFSGroupPolicy: true
+  enableInlineVolume: false
+  propagateHostMountOptions: false
+
+# Override if the kubelet root differs on the target cluster.
+kubeletDir: /var/lib/kubelet
+
+controller:
+  replicas: 1
+  enableSnapshotter: true
+  defaultOnDeletePolicy: delete
+  logLevel: 5
+
+  # Uncomment to steer the controller to specific nodes.
+  # nodeSelector:
+  #   kubernetes.io/os: linux
+
+  # Uncomment to override the default resource requests and limits.
+  # resources:
+  #   csiProvisioner:
+  #     requests:
+  #       cpu: 10m
+  #       memory: 20Mi
+  #   csiResizer:
+  #     requests:
+  #       cpu: 10m
+  #       memory: 20Mi
+  #   csiSnapshotter:
+  #     requests:
+  #       cpu: 10m
+  #       memory: 20Mi
+  #   livenessProbe:
+  #     requests:
+  #       cpu: 10m
+  #       memory: 20Mi
+  #   nfs:
+  #     requests:
+  #       cpu: 10m
+  #       memory: 20Mi
+
+node:
+  logLevel: 5
+
+  # Uncomment to constrain node plugin scheduling.
+  # nodeSelector:
+  #   kubernetes.io/os: linux
+
+  # Uncomment to override the default resource requests and limits.
+  # resources:
+  #   nodeDriverRegistrar:
+  #     requests:
+  #       cpu: 10m
+  #       memory: 20Mi
+  #   livenessProbe:
+  #     requests:
+  #       cpu: 10m
+  #       memory: 20Mi
+  #   nfs:
+  #     requests:
+  #       cpu: 10m
+  #       memory: 20Mi
+
+externalSnapshotter:
+  enabled: true
+  # deletionPolicy: Delete
+
+# The charm manages the Manila storage class separately. Leave these disabled
+# unless you explicitly want the NFS CSI chart to create its own classes.
+storageClass:
+  create: false
+
+volumeSnapshotClass:
+  create: false
