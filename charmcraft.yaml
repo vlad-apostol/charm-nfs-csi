@@ -1,0 +1,82 @@
+# This file configures Charmcraft.
+# See https://documentation.ubuntu.com/charmcraft/stable/reference/files/charmcraft-yaml-file/
+type: charm
+name: nfs-csi
+title: NFS CSI
+summary: Subordinate charm that deploys the NFS CSI driver for Kubernetes clusters.
+description: |
+  This subordinate charm deploys the NFS CSI driver, enabling Kubernetes clusters
+  to use NFS-backed persistent storage for workloads.
+
+  The charm attaches to a Kubernetes principal charm (e.g. kubernetes-control-plane) via the
+  juju-info relation and obtains cluster credentials via the kube-control interface. Only the
+  elected leader unit performs Helm deployments; remaining units act as standby replicas.
+
+  The charm manages:
+  - NFS CSI driver deployment via Helm
+
+  The chart is downloaded at deploy time from the upstream Helm repository.
+
+  IMPORTANT: Only one NFS CSI controller should run per cluster. If the cluster
+  already has a snapshot-controller, set deploy-external-snapshotter=false.
+
+subordinate: true
+
+# Documentation:
+# https://documentation.ubuntu.com/charmcraft/stable/howto/build-guides/select-platforms/
+platforms:
+  ubuntu@24.04:amd64:
+  ubuntu@22.04:amd64:
+
+parts:
+  charm:
+    plugin: uv
+    source: .
+    build-snaps:
+      - astral-uv
+    override-build: |
+      craftctl default
+      cp ${CRAFT_PART_SRC}/dispatch ${CRAFT_PART_INSTALL}/dispatch
+      cp -r ${CRAFT_PART_SRC}/manifests ${CRAFT_PART_INSTALL}/manifests
+    prime:
+      - dispatch
+      - src/
+      - venv/
+      - manifests/
+
+config:
+  options:
+    nfs-csi-namespace:
+      description: |
+        Kubernetes namespace for NFS CSI components.
+
+        IMMUTABLE: set this before deploying. Changing it after the first successful
+        deploy is blocked — the charm stores the deployed namespace and will enter
+        BlockedStatus if the config value is changed. Remove and re-deploy to use a
+        different namespace.
+      default: "kube-system"
+      type: string
+
+    deploy-external-snapshotter:
+      description: |
+        Whether to deploy the cluster-wide external snapshot-controller alongside NFS CSI.
+
+        Set to 'true' (default) to deploy the snapshot-controller and its CRDs.
+        Set to 'false' if the cluster already has a snapshot-controller installed
+        (e.g. provided by the cloud or another charm) to avoid running multiple
+        instances, which causes split-brain snapshot handling.
+
+        IMPORTANT: Exactly one snapshot-controller should run per cluster.
+      default: true
+      type: boolean
+
+assumes:
+  - juju >= 3.0
+
+requires:
+  juju-info:
+    interface: juju-info
+    scope: container
+  kube-control:
+    interface: kube-control
+    limit: 1

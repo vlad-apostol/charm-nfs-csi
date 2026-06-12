@@ -1,0 +1,5 @@
+#!/bin/sh
+# Copyright 2026 vlad.apostol@canonical.com
+# See LICENSE file for licensing details.
+PYTHONPATH="${CHARM_DIR}/venv/lib/$(ls "${CHARM_DIR}/venv/lib")/site-packages" \
+exec python3 "${CHARM_DIR}/src/charm.py" "$@"
